@@ -35,7 +35,7 @@ def notebook(preprocessor, tag, markup):
     start = int(start) if start else 0
     end = int(end) if end else None
 
-    nb_path = os.path.join("content", src)
+    nb_path = os.path.join(preprocessor.configs.getConfig("CONTENT_DIR", "content"), src)
     preprocessors = preprocessor.configs.getConfig("IPYNB_PREPROCESSORS", [])
     template = preprocessor.configs.getConfig("IPYNB_EXPORT_TEMPLATE", None)
     content, info = get_html_from_filepath(
