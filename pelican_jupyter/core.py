@@ -86,7 +86,7 @@ def get_html_from_filepath(
 ):
     """Return the HTML from a Jupyter Notebook
     """
-    template_file = "basic"
+    template_file = "base"
     extra_loaders = []
     if template:
         extra_loaders.append(jinja2.FileSystemLoader([os.path.dirname(template)]))

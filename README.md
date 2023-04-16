@@ -172,7 +172,7 @@ If you are using the Markup mode then just add this variables to your `pelicanco
 | `IPYNB_FIX_CSS = True` | [markup and liquid] Do not apply any of the plugins "fixes" to the Jupyter CSS use all the default Jupyter CSS. |
 | `IPYNB_SKIP_CSS = False` | [markup and liquid] Do not include (at all) the notebook CSS in the generated output. This is usefull if you want to include it yourself in the theme. |
 | `IPYNB_PREPROCESSORS` | [markup and liquid] A list of nbconvert preprocessors to be used when generating the HTML output. |
-| `IPYNB_EXPORT_TEMPLATE` | [markup and liquid] Path to nbconvert export template (relative to project root). For example: Create a custom template that extends from the `basic` template and adds some custom CSS and JavaScript, more info here [docs](http://nbconvert.readthedocs.io/en/latest/customizing.html) and [example here](https://github.com/jupyter/nbconvert/blob/master/nbconvert/templates/html/basic.tpl). |
+| `IPYNB_EXPORT_TEMPLATE` | [markup and liquid] Path to nbconvert export template (relative to project root). For example: Create a custom template that extends from the `base` template and adds some custom CSS and JavaScript, more info here [docs](http://nbconvert.readthedocs.io/en/latest/customizing.html) and [example here](https://github.com/jupyter/nbconvert/blob/master/nbconvert/templates/html/base.tpl). |
 | `IPYNB_STOP_SUMMARY_TAGS = [('div', ('class', 'input')), ('div', ('class', 'output')), ('h2', ('id', 'Header-2'))]` | [markup only] List of tuples with the html tag and attribute (python HTMLParser format) that are used to stop the summary creation, this is useful to generate valid/shorter summaries. |
 | `IPYNB_GENERATE_SUMMARY = True` | [markup only] Create a summary based on the notebook content. Every notebook can still use the s`Summary` from the metadata to overwrite this. |
 | `IPYNB_EXTEND_STOP_SUMMARY_TAGS` | [markup only] List of tuples to extend the default `IPYNB_STOP_SUMMARY_TAGS`. |
@@ -183,7 +183,7 @@ If you are using the Markup mode then just add this variables to your `pelicanco
 Example template for `IPYNB_EXPORT_TEMPLATE`:
 
 ```
-{%- extends 'basic.tpl' -%}
+{%- extends 'base.tpl' -%}
 
 {% block header %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
