@@ -83,7 +83,9 @@ class IPythonNB(BaseReader):
 
             # Create temporary file for markdown reader
             # We close and delete the file after reading to avoid file lock issues on systems like Windows
-            with tempfile.NamedTemporaryFile("w+", encoding="utf-8", delete=False) as metadata_file:
+            with tempfile.NamedTemporaryFile(
+                "w+", encoding="utf-8", delete=False
+            ) as metadata_file:
                 md_reader = MarkdownReader(self.settings)
                 metadata_file.write(metacell)
                 metadata_file.flush()

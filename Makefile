@@ -7,7 +7,7 @@ MAKEFLAGS += --no-builtin-rules
 
 TEST_FILTER ?= ""
 TEST_MARKERS ?= ""
-
+SRC_AND_TEST_FILES = pelican_jupyter tests
 
 first: help
 
@@ -39,14 +39,25 @@ upload-test:  ## Upload package to test PyPI
 # Testing
 
 check:  ## Check linting
-	flake8
-	isort . --check-only --diff --project pelican_jupyter
-	black . --check --diff
+	flake8 ./pelican_jupyter
+	isort ./pelican_jupyter --check-only --diff --project pelican_jupyter
+	black ./pelican_jupyter --check --diff
 
+format: ## Running code formatter: black and isort
+	@echo "(isort) Ordering imports..."
+	@isort $(SRC_AND_TEST_FILES)
+	@echo "(black) Formatting codebase..."
+	@black --config pyproject.toml $(SRC_AND_TEST_FILES)
+	@echo "(ruff) Running fix only..."
+	@ruff check $(SRC_AND_TEST_FILES) --fix-only
+
+lint: ## Run the linter (ruff) to check the code style.
+	@echo -e "$(COLOR_CYAN)Checking code style with ruff...$(COLOR_RESET)"
+	ruff check $(SRC_AND_TEST_FILES)
 
 fmt:  ## Format source
-	isort . --project pelican_jupyter
-	black .
+	isort ./pelican_jupyter --project pelican_jupyter
+	black ./pelican_jupyter
 
 
 test:  ## Run tests
