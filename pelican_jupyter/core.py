@@ -81,10 +81,13 @@ def get_config():
 
 
 def get_html_from_filepath(
-    filepath, start=0, end=None, preprocessors=[], template=None, colorscheme=None
+    filepath, start=0, end=None, preprocessors=None, template=None, colorscheme=None
 ):
     """Return the HTML from a Jupyter Notebook
     """
+    if preprocessors is None:
+        preprocessors = []
+
     template_file = "base"
     extra_loaders = []
     if template:
@@ -113,7 +116,7 @@ def get_html_from_filepath(
         template_file=template_file,
         extra_loaders=extra_loaders,
         filters={"highlight2html": custom_highlighter},
-        preprocessors=[SubCell] + preprocessors,
+        preprocessors=[SubCell, *preprocessors],
     )
     content, info = exporter.from_filename(filepath)
 
@@ -196,7 +199,7 @@ class SliceIndex(Integer):
         if value is None:
             return value
         else:
-            return super(SliceIndex, self).validate(obj, value)
+            return super().validate(obj, value)
 
 
 class SubCell(Preprocessor):

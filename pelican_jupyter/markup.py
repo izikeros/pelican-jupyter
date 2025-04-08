@@ -4,7 +4,7 @@ import os
 import re
 import tempfile
 from shutil import copyfile
-from typing import Any
+from typing import Any, ClassVar
 
 from pelican import signals
 from pelican.readers import BaseReader, HTMLReader, MarkdownReader
@@ -42,7 +42,7 @@ class IPythonNB(BaseReader):
     """
 
     enabled = True
-    file_extensions = ["ipynb"]
+    file_extensions: ClassVar[list[str]] = ["ipynb"]
 
     def read(self, filepath: str) -> tuple[str, dict[str, Any]]:
         """Read and parse an IPython notebook file.
@@ -83,17 +83,15 @@ class IPythonNB(BaseReader):
 
             # Create temporary file for markdown reader
             # We close and delete the file after reading to avoid file lock issues on systems like Windows
-            metadata_file = tempfile.NamedTemporaryFile(
-                "w+", encoding="utf-8", delete=False
-            )
-            md_reader = MarkdownReader(self.settings)
-            metadata_file.write(metacell)
-            metadata_file.flush()
-            metadata_file.close()
-            _content, metadata = md_reader.read(metadata_file.name)
-            os.remove(metadata_file.name)
-            # Skip metacell
-            start = 1
+            with tempfile.NamedTemporaryFile("w+", encoding="utf-8", delete=False) as metadata_file:
+                md_reader = MarkdownReader(self.settings)
+                metadata_file.write(metacell)
+                metadata_file.flush()
+                metadata_file.close()
+                _content, metadata = md_reader.read(metadata_file.name)
+                os.remove(metadata_file.name)
+                # Skip metacell
+                start = 1
         else:
             raise Exception(
                 f"Error processing {filepath}: "
