@@ -9,7 +9,6 @@ import jinja2
 from nbconvert.exporters import HTMLExporter
 from pygments.formatters import HtmlFormatter
 
-
 try:
     # Jupyter
     from traitlets import Integer
@@ -130,7 +129,7 @@ def parse_css(content, info, fix_css=True, ignore_css=False):
     """
 
     def style_tag(styles):
-        return '<style type="text/css">{0}</style>'.format(styles)
+        return f'<style type="text/css">{styles}</style>'
 
     def filter_css(style):
         """

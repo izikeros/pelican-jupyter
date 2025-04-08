@@ -129,13 +129,11 @@ Summary:
 
 ## Recommend mode?
 
-Personally I like Method A - Option 1 since I write the Notebooks first, and then I just add
-the metadata file and keeps the notebook clean.
+Personally I like Method A - Option 1 since I write the Notebooks first, and then I just add the metadata file and keeps the notebook clean.
 
 The Liquid tag mode provide more flexibility to combine an existing notebook code or output with extra text on a Markdown.
 You can also combine 2 or more notebooks in this mode.
-The only problem with the liquid tag mode is that it doesn't generate a summary for the article
-automatically from the notebook so you have to write it in the source `.md` file that includes the notebook.s
+The only problem with the liquid tag mode is that it doesn't generate a summary for the article automatically from the notebook so you have to write it in the source `.md` file that includes the notebook.
 
 You can use both modes at the same time but you are probably going to see a exception that
 prevents conflicts, ignore it.
@@ -148,7 +146,7 @@ There is some issues/conflicts regarding the CSS that the Jupyter Notebook requi
 
 I do my best to make the plugin work with every theme but for obvious reasons I cannot guarantee that it will look good in any pelican theme.
 
-Jupyter Notebook is based on bootstrap so you probably will need your theme to be based on that it if you want the html and css to render nicely.
+Jupyter Notebook is based on bootstrap, so you probably will need your theme to be based on that it if you want the HTML and CSS to render nicely.
 
 I try to inject only the necessary CSS by removing Jupyter's bootstrap code and only injecting the extra CSS code.
 In some cases but fixes are needed, I recommend looking at how [my theme](https://github.com/danielfrg/danielfrg.com) fixes them.
