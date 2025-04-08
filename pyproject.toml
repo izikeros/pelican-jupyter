@@ -48,6 +48,7 @@ line_length = 88
 
 [project]
 name = "pelican-jupyter"
+version = {use_scm = true}
 dependencies = [
     "pelican",
     "nbconvert",
