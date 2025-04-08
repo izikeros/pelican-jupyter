@@ -1,6 +1,7 @@
 """
 Core module that handles the conversion from notebook to HTML plus some utilities
 """
+
 import os
 import re
 from copy import deepcopy
@@ -73,7 +74,10 @@ LATEX_CUSTOM_SCRIPT = """
 
 
 def get_config():
-    """Load and return the user's nbconvert configuration
+    """Load and return the user's nbconvert configuration.
+
+    Returns:
+        The nbconvert configuration object
     """
     app = NbConvertApp()
     app.load_config_file()
@@ -81,9 +85,27 @@ def get_config():
 
 
 def get_html_from_filepath(
-    filepath, start=0, end=None, preprocessors=None, template=None, colorscheme=None
-):
-    """Return the HTML from a Jupyter Notebook
+    filepath: str,
+    start: int = 0,
+    end: int = None,
+    preprocessors: list = None,
+    template: str = None,
+    colorscheme: str = None,
+) -> tuple:
+    """Convert a Jupyter Notebook to HTML.
+
+    Args:
+        filepath: Path to the notebook file
+        start: First cell index to include
+        end: Last cell index to include (exclusive)
+        preprocessors: Additional preprocessors to apply
+        template: Path to a custom template file
+        colorscheme: Pygments color scheme name
+
+    Returns:
+        Tuple containing:
+            - The HTML content as a string
+            - Information dictionary from the exporter
     """
     if preprocessors is None:
         preprocessors = []
@@ -105,8 +127,7 @@ def get_html_from_filepath(
         }
     )
 
-    if not colorscheme:
-        colorscheme = "default"
+    colorscheme = colorscheme or "default"
 
     config.CSSHTMLHeaderPreprocessor.highlight_class = " .highlight pre "
     config.CSSHTMLHeaderPreprocessor.style = colorscheme
@@ -123,30 +144,45 @@ def get_html_from_filepath(
     return content, info
 
 
-def parse_css(content, info, fix_css=True, ignore_css=False):
-    """
-    General fixes for the notebook generated html
+def parse_css(
+    content: str, info: dict, fix_css: bool = True, ignore_css: bool = False
+) -> str:
+    """Process and combine CSS with notebook HTML content.
 
-    fix_css is to do a basic filter to remove extra CSS from the Jupyter CSS
-    ignore_css is to not include at all the Jupyter CSS
+    This function handles the CSS styling for the notebook HTML output,
+    with options to filter or ignore the Jupyter CSS.
+
+    Args:
+        content: The HTML content from the notebook
+        info: Information dictionary from the exporter
+        fix_css: Whether to filter the Jupyter CSS to remove unnecessary styles
+        ignore_css: Whether to completely ignore the Jupyter CSS
+
+    Returns:
+        The processed HTML content with appropriate CSS
     """
 
-    def style_tag(styles):
+    def style_tag(styles: str) -> str:
+        """Wrap CSS in a style tag."""
         return f'<style type="text/css">{styles}</style>'
 
-    def filter_css(style):
+    def filter_css(style: str) -> str:
+        """Filter Jupyter CSS to keep only notebook-specific styles.
+
+        This is a targeted approach to extract only the Jupyter Notebook CSS
+        without extra Bootstrap and webapp styles.
         """
-        This is a little bit of a Hack.
-        Jupyter returns a lot of CSS including its own bootstrap.
-        We try to get only the Jupyter Notebook CSS without the extra stuff.
-        """
+        # Extract only the IPython notebook section
         index = style.find("/*!\n*\n* IPython notebook\n*\n*/")
         if index > 0:
             style = style[index:]
+
+        # Remove the webapp section if present
         index = style.find("/*!\n*\n* IPython notebook webapp\n*\n*/")
         if index > 0:
             style = style[:index]
 
+        # Clean up specific style elements
         style = re.sub(r"color\:\#0+(;)?", "", style)
         style = re.sub(
             r"\.rendered_html[a-z0-9,._ ]*\{[a-z0-9:;%.#\-\s\n]+\}", "", style
@@ -154,28 +190,39 @@ def parse_css(content, info, fix_css=True, ignore_css=False):
         return style_tag(style)
 
     if ignore_css:
-        content = content + LATEX_CUSTOM_SCRIPT
+        # Skip all CSS and just add the LaTeX script
+        result = content + LATEX_CUSTOM_SCRIPT
     else:
         if fix_css:
+            # Apply filtering to each CSS block
             jupyter_css = "\n".join(
                 filter_css(style) for style in info["inlining"]["css"]
             )
         else:
+            # Include all CSS without filtering
             jupyter_css = "\n".join(
                 style_tag(style) for style in info["inlining"]["css"]
             )
-        content = jupyter_css + content + LATEX_CUSTOM_SCRIPT
-    return content
+        result = jupyter_css + content + LATEX_CUSTOM_SCRIPT
+
+    return result
 
 
-def custom_highlighter(source, language="python", metadata=None):
-    """
-    Makes the syntax highlighting from pygments have prefix(`highlight-ipynb`)
-    So it doesn't break the theme pygments
+def custom_highlighter(
+    source: str, language: str = "python", metadata: dict = None
+) -> str:
+    """Apply syntax highlighting with custom CSS classes.
 
-    This modifies both css prefixes and html tags
+    This function customizes the Pygments syntax highlighting output
+    to use a specific CSS class prefix that won't conflict with the theme.
 
-    Returns new html content
+    Args:
+        source: The source code to highlight
+        language: The programming language for syntax highlighting
+        metadata: Additional metadata for the highlighter
+
+    Returns:
+        HTML with syntax highlighting applied
     """
     if not language:
         language = "python"
@@ -186,16 +233,78 @@ def custom_highlighter(source, language="python", metadata=None):
     return output
 
 
+def soup_fix(content: str, add_permalink: bool = False) -> str:
+    """Fix issues and enhance HTML content using BeautifulSoup.
+
+    This function applies several improvements to the notebook HTML:
+    1. Wraps markdown cells with a div for better styling
+    2. Optionally adds permalink anchors to headers
+    3. Fixes Jupyter notebook formatting quirks
+
+    Args:
+        content: The HTML content from the notebook
+        add_permalink: Whether to add permalink anchors to headers
+
+    Returns:
+        The processed HTML content
+
+    Note:
+        This function requires BeautifulSoup to be installed.
+        If BeautifulSoup is not available, the content is returned unmodified.
+    """
+    if BeautifulSoup is None:
+        return content
+
+    soup = BeautifulSoup(content, "html.parser")
+
+    # Add div.cell around markdown cells
+    for div in soup.findAll("div", {"class": "text_cell_render"}):
+        new_div = soup.new_tag("div")
+        new_div["class"] = "cell"
+        outer_div = div.find_parent("div")
+        outer_div.wrap(new_div)
+
+    # Add permalinks to headers
+    if add_permalink:
+        for h in soup.findAll(["h1", "h2", "h3", "h4", "h5", "h6"]):
+            if not h.get("id"):
+                continue
+
+            permalink = soup.new_tag("a", href="#" + h["id"])
+            permalink["class"] = ["anchor-link"]
+            permalink.string = "#"
+            h.append(permalink)
+
+    # Remove explicit MIME type from code cells (language is already in the div class)
+    for pre in soup.findAll("pre"):
+        if "data-mime-type" in pre.attrs:
+            del pre.attrs["data-mime-type"]
+
+    return str(soup)
+
+
 # ----------------------------------------------------------------------
 # Create a preprocessor to slice notebook by cells
 
 
 class SliceIndex(Integer):
-    """An integer trait that accepts None"""
+    """An integer trait that accepts None as a valid value.
+
+    Used for notebook cell slicing operations.
+    """
 
     default_value = None
 
-    def validate(self, obj, value):
+    def validate(self, obj: object, value: int) -> int:
+        """Validate the input value, allowing None as a valid option.
+
+        Args:
+            obj: The object being validated
+            value: The integer value or None
+
+        Returns:
+            The validated value
+        """
         if value is None:
             return value
         else:
@@ -203,12 +312,29 @@ class SliceIndex(Integer):
 
 
 class SubCell(Preprocessor):
-    """A preprocessor to select a slice of the cells of a notebook"""
+    """A preprocessor to select a slice of the cells of a notebook.
 
-    start = SliceIndex(0, config=True, help="first cell of notebook")
-    end = SliceIndex(None, config=True, help="last cell of notebook")
+    This preprocessor extracts a subset of cells from a notebook based on
+    start and end indices, creating a new notebook with only the selected cells.
+    """
+
+    start = SliceIndex(0, config=True, help="First cell index of notebook to include")
+    end = SliceIndex(
+        None, config=True, help="Last cell index of notebook to include (exclusive)"
+    )
 
     def preprocess(self, nb, resources):
+        """Process the notebook by extracting the specified cell slice.
+
+        Args:
+            nb: The notebook to process
+            resources: Additional resources
+
+        Returns:
+            Tuple containing:
+                - The processed notebook with only selected cells
+                - The resources dictionary
+        """
         nbc = deepcopy(nb)
         nbc.cells = nbc.cells[self.start : self.end]
         return nbc, resources
