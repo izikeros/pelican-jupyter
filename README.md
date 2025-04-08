@@ -1,20 +1,20 @@
 # pelican-jupyter: Pelican plugin for Jupyter Notebooks
 
 [![pypi](https://badge.fury.io/py/pelican-jupyter.svg)](https://pypi.org/project/pelican-jupyter/)
-[![build](https://github.com/danielfrg/pelican-jupyter/workflows/test/badge.svg)](https://github.com/danielfrg/pelican-jupyter/actions/workflows/test.yml)
-[![coverage](https://codecov.io/gh/danielfrg/pelican-jupyter/branch/master/graph/badge.svg)](https://codecov.io/gh/danielfrg/pelican-jupyter?branch=master)
-[![license](https://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/danielfrg/pelican-jupyter/blob/master/LICENSE.txt)
+[![build](https://github.com/izikeros/pelican-jupyter/workflows/test/badge.svg)](https://github.com/izikeros/pelican-jupyter/actions/workflows/test.yml)
+[![coverage](https://codecov.io/gh/izikeros/pelican-jupyter/branch/master/graph/badge.svg)](https://codecov.io/gh/izikeros/pelican-jupyter?branch=master)
+[![license](https://img.shields.io/:license-Apache%202-blue.svg)](https://github.com/izikeros/pelican-jupyter/blob/master/LICENSE.txt)
 
 ## Installation
 
-```
+```sh
 pip install pelican-jupyter
 ```
 
 ### Pelican and Jupyter versions
 
-The main focus is to run with the latest versions of the packages but there is a good chance the plugin will work correctly with older versions of Pelican and Jupyter/.
-The recommended version of libraries are:
+The main focus is to run with the latest versions of the packages, but there is a good chance the plugin will work correctly with older versions of Pelican and Jupyter/.
+The recommended version of libraries is:
 
 - `pelican>=4`
 - `notebook>=6`
@@ -129,7 +129,7 @@ Summary:
 
 ## Recommend mode?
 
-Personally I like Method A - Option 1 since I write the Notebooks first and then I just add
+Personally I like Method A - Option 1 since I write the Notebooks first, and then I just add
 the metadata file and keeps the notebook clean.
 
 The Liquid tag mode provide more flexibility to combine an existing notebook code or output with extra text on a Markdown.
