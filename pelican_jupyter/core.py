@@ -238,6 +238,8 @@ def soup_fix(
     add_permalink: bool = False,
     remove_prompts: bool = True,
     remove_anchor_links: bool = True,
+    remove_collapsers: bool = True,
+    simplify_structure: bool = True,
 ) -> str:
     """Fix issues and enhance HTML content using BeautifulSoup.
 
@@ -247,12 +249,16 @@ def soup_fix(
     3. Fixes Jupyter notebook formatting quirks
     4. Removes cell prompts (In[]/Out[]) for cleaner blog output
     5. Removes anchor links with pilcrow (¶) from headings
+    6. Removes empty collapser divs
+    7. Simplifies nested div structure
 
     Args:
         content: The HTML content from the notebook
         add_permalink: Whether to add permalink anchors to headers
         remove_prompts: Whether to remove In[]/Out[] cell prompts
         remove_anchor_links: Whether to remove ¶ anchor links from headings
+        remove_collapsers: Whether to remove empty jp-Collapser divs
+        simplify_structure: Whether to simplify nested wrapper divs
 
     Returns:
         The processed HTML content
@@ -278,6 +284,26 @@ def soup_fix(
     if remove_anchor_links:
         for anchor in soup.findAll("a", {"class": "anchor-link"}):
             anchor.decompose()
+
+    # Remove empty collapser divs (jp-Collapser, jp-InputCollapser, jp-OutputCollapser)
+    if remove_collapsers:
+        for collapser in soup.findAll("div", {"class": "jp-Collapser"}):
+            collapser.decompose()
+
+    # Simplify nested wrapper divs by unwrapping redundant containers
+    if simplify_structure:
+        # Remove jp-Cell-inputWrapper and jp-Cell-outputWrapper (keep children)
+        for wrapper_class in ["jp-Cell-inputWrapper", "jp-Cell-outputWrapper"]:
+            for wrapper in soup.findAll("div", {"class": wrapper_class}):
+                wrapper.unwrap()
+
+        # Remove jp-CodeMirrorEditor wrapper (keep children)
+        for editor in soup.findAll("div", {"class": "jp-CodeMirrorEditor"}):
+            editor.unwrap()
+
+        # Remove cm-editor wrapper (keep children)
+        for cm_editor in soup.findAll("div", {"class": "cm-editor"}):
+            cm_editor.unwrap()
 
     # Add div.cell around markdown cells
     for div in soup.findAll("div", {"class": "text_cell_render"}):

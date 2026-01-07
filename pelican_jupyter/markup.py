@@ -167,14 +167,18 @@ class IPythonNB(BaseReader):
         ignore_css = self.settings.get("IPYNB_SKIP_CSS", False)
         content = parse_css(content, info, fix_css=fix_css, ignore_css=ignore_css)
 
-        # Clean up HTML: remove prompts and anchor links
+        # Clean up HTML: remove prompts, anchor links, collapsers, simplify structure
         remove_prompts = self.settings.get("IPYNB_REMOVE_PROMPTS", True)
         remove_anchor_links = self.settings.get("IPYNB_REMOVE_ANCHOR_LINKS", True)
+        remove_collapsers = self.settings.get("IPYNB_REMOVE_COLLAPSERS", True)
+        simplify_structure = self.settings.get("IPYNB_SIMPLIFY_HTML_STRUCTURE", True)
         content = soup_fix(
             content,
             add_permalink=False,
             remove_prompts=remove_prompts,
             remove_anchor_links=remove_anchor_links,
+            remove_collapsers=remove_collapsers,
+            simplify_structure=simplify_structure,
         )
 
         # Save notebook copy if configured

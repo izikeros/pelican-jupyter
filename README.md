@@ -178,6 +178,8 @@ If you are using the Markup mode then just add this variables to your `pelicanco
 | `IPYNB_COLORSCHEME` | [markup only] Change the pygments colorscheme used for syntax highlighting |
 | `IPYNB_REMOVE_PROMPTS = True` | [markup only] Remove cell prompts (`In [1]:`, `Out[8]:`) for cleaner blog output. Set to `False` to keep them. |
 | `IPYNB_REMOVE_ANCHOR_LINKS = True` | [markup only] Remove pilcrow (¶) anchor links from headings. Set to `False` to keep them. |
+| `IPYNB_REMOVE_COLLAPSERS = True` | [markup only] Remove empty collapser divs (`jp-Collapser`) that serve no purpose in static HTML. |
+| `IPYNB_SIMPLIFY_HTML_STRUCTURE = True` | [markup only] Simplify nested wrapper divs by removing redundant containers like `jp-Cell-inputWrapper`, `jp-CodeMirrorEditor`, etc. |
 | `IGNORE_FILES = ['.ipynb_checkpoints']` | [Pelican setting useful for markup] Prevents pelican from trying to parse notebook checkpoint files. |
 
 Example template for `IPYNB_EXPORT_TEMPLATE`:
