@@ -176,6 +176,8 @@ If you are using the Markup mode then just add this variables to your `pelicanco
 | `IPYNB_EXTEND_STOP_SUMMARY_TAGS` | [markup only] List of tuples to extend the default `IPYNB_STOP_SUMMARY_TAGS`. |
 | `IPYNB_NB_SAVE_AS` | [markup only] If you want to make the original notebook available set this variable in a  is similar way to the default pelican `ARTICLE_SAVE_AS` setting. This will also add a metadata field `nb_path` which can be used in the theme. e.g. `blog/{date:%Y}/{date:%m}/{date:%d}/{slug}/notebook.ipynb` |
 | `IPYNB_COLORSCHEME` | [markup only] Change the pygments colorscheme used for syntax highlighting |
+| `IPYNB_REMOVE_PROMPTS = True` | [markup only] Remove cell prompts (`In [1]:`, `Out[8]:`) for cleaner blog output. Set to `False` to keep them. |
+| `IPYNB_REMOVE_ANCHOR_LINKS = True` | [markup only] Remove pilcrow (¶) anchor links from headings. Set to `False` to keep them. |
 | `IGNORE_FILES = ['.ipynb_checkpoints']` | [Pelican setting useful for markup] Prevents pelican from trying to parse notebook checkpoint files. |
 
 Example template for `IPYNB_EXPORT_TEMPLATE`:

@@ -233,17 +233,26 @@ def custom_highlighter(
     return output
 
 
-def soup_fix(content: str, add_permalink: bool = False) -> str:
+def soup_fix(
+    content: str,
+    add_permalink: bool = False,
+    remove_prompts: bool = True,
+    remove_anchor_links: bool = True,
+) -> str:
     """Fix issues and enhance HTML content using BeautifulSoup.
 
     This function applies several improvements to the notebook HTML:
     1. Wraps markdown cells with a div for better styling
     2. Optionally adds permalink anchors to headers
     3. Fixes Jupyter notebook formatting quirks
+    4. Removes cell prompts (In[]/Out[]) for cleaner blog output
+    5. Removes anchor links with pilcrow (¶) from headings
 
     Args:
         content: The HTML content from the notebook
         add_permalink: Whether to add permalink anchors to headers
+        remove_prompts: Whether to remove In[]/Out[] cell prompts
+        remove_anchor_links: Whether to remove ¶ anchor links from headings
 
     Returns:
         The processed HTML content
@@ -257,12 +266,26 @@ def soup_fix(content: str, add_permalink: bool = False) -> str:
 
     soup = BeautifulSoup(content, "html.parser")
 
+    # Remove cell prompts (In[1]:, Out[8]:, etc.) for cleaner blog output
+    if remove_prompts:
+        for prompt in soup.findAll("div", {"class": "jp-InputPrompt"}):
+            prompt.decompose()
+        for prompt in soup.findAll("div", {"class": "jp-OutputPrompt"}):
+            prompt.decompose()
+
+    # Remove anchor links with pilcrow (¶) from headings
+    # Keep the heading id for linking, just remove the visible ¶ link
+    if remove_anchor_links:
+        for anchor in soup.findAll("a", {"class": "anchor-link"}):
+            anchor.decompose()
+
     # Add div.cell around markdown cells
     for div in soup.findAll("div", {"class": "text_cell_render"}):
         new_div = soup.new_tag("div")
         new_div["class"] = "cell"
         outer_div = div.find_parent("div")
-        outer_div.wrap(new_div)
+        if outer_div:
+            outer_div.wrap(new_div)
 
     # Add permalinks to headers
     if add_permalink:

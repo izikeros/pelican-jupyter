@@ -9,7 +9,7 @@ from typing import Any, ClassVar
 from pelican import signals
 from pelican.readers import BaseReader, HTMLReader, MarkdownReader
 
-from .core import get_html_from_filepath, parse_css
+from .core import get_html_from_filepath, parse_css, soup_fix
 
 try:
     # Py3k
@@ -166,6 +166,16 @@ class IPythonNB(BaseReader):
         fix_css = self.settings.get("IPYNB_FIX_CSS", True)
         ignore_css = self.settings.get("IPYNB_SKIP_CSS", False)
         content = parse_css(content, info, fix_css=fix_css, ignore_css=ignore_css)
+
+        # Clean up HTML: remove prompts and anchor links
+        remove_prompts = self.settings.get("IPYNB_REMOVE_PROMPTS", True)
+        remove_anchor_links = self.settings.get("IPYNB_REMOVE_ANCHOR_LINKS", True)
+        content = soup_fix(
+            content,
+            add_permalink=False,
+            remove_prompts=remove_prompts,
+            remove_anchor_links=remove_anchor_links,
+        )
 
         # Save notebook copy if configured
         if self.settings.get("IPYNB_NB_SAVE_AS"):
